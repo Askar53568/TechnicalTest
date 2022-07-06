@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen(c =>
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
-});
+}); 
 
 builder.Services.AddScoped<IShapeService, ShapeService>();
 builder.Services.AddScoped<IShapeFactory, ShapeFactory>();

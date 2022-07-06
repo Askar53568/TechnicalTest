@@ -4,7 +4,8 @@
     {
         public GridValue(string gridValue)
         {
-            if (string.IsNullOrEmpty(gridValue) || gridValue.Length != 2) return;
+            //changed max grid value length from 2 to 3 due to the given grid size and values
+            if (string.IsNullOrEmpty(gridValue) || gridValue.Length > 3) return;
 
             Row = gridValue[..1];
             Column = int.Parse(gridValue[1..]);

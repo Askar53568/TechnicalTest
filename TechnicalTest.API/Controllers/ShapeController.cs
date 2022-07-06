@@ -35,19 +35,29 @@ namespace TechnicalTest.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Route("CalculateCoordinates")]
         [HttpPost]
-        public IActionResult CalculateCoordinates([FromBody]CalculateCoordinatesDTO calculateCoordinatesRequest)
+        public IActionResult CalculateCoordinates([FromBody] CalculateCoordinatesDTO calculateCoordinatesRequest)
         {
-            // TODO: Get the ShapeEnum and if it is default (ShapeEnum.None) or not triangle, return BadRequest as only Triangle is implemented yet.
-
-            // TODO: Call the Calculate function in the shape factory.
-
-            // TODO: Return BadRequest with error message if the calculate result is null
-
-            // TODO: Create ResponseModel with Coordinates and return as OK with responseModel.
-
-            return Ok();
+            // Get the ShapeEnum and if it is default (ShapeEnum.None) or not triangle, return BadRequest as only Triangle is implemented yet.
+            ShapeEnum shapeEnum = (ShapeEnum)calculateCoordinatesRequest.ShapeType;
+            if (shapeEnum == ShapeEnum.None || shapeEnum == ShapeEnum.Other)
+            {
+                return BadRequest();
+            }
+            // Call the Calculate function in the shape factory.
+            Grid grid = new Grid(calculateCoordinatesRequest.Grid.Size);
+            GridValue gridValue = new GridValue(calculateCoordinatesRequest.GridValue);
+            Shape? shape = _shapeFactory.CalculateCoordinates(shapeEnum, grid, gridValue);
+            // Return BadRequest with error message if the calculate result is null
+            if (shape == null)
+            {
+                return BadRequest();
+            }
+            // Create ResponseModel with Coordinates and return as OK with responseModel.
+            else
+            {
+                return Ok(shape.Coordinates);
+            }
         }
-
         /// <summary>
         /// Calculates the Grid Value of a shape given the Coordinates.
         /// </summary>
@@ -62,19 +72,37 @@ namespace TechnicalTest.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Route("CalculateGridValue")]
         [HttpPost]
-        public IActionResult CalculateGridValue([FromBody]CalculateGridValueDTO gridValueRequest)
+        public IActionResult CalculateGridValue([FromBody] CalculateGridValueDTO gridValueRequest)
         {
-	        // TODO: Get the ShapeEnum and if it is default (ShapeEnum.None) or not triangle, return BadRequest as only Triangle is implemented yet.
+            // Get the ShapeEnum and if it is default (ShapeEnum.None) or not triangle, return BadRequest as only Triangle is implemented yet.
+            ShapeEnum shapeEnum = (ShapeEnum)gridValueRequest.ShapeType;
+            if (shapeEnum == ShapeEnum.None || shapeEnum == ShapeEnum.Other)
+            {
+                return BadRequest();
 
-            // TODO: Create new Shape with coordinates based on the parameters from the DTO.
+            }
 
-            // TODO: Call the function in the shape factory to calculate grid value.
-
-            // TODO: If the GridValue result is null then return BadRequest with an error message.
-
-            // TODO: Generate a ResponseModel based on the result and return it in Ok();
-
-            return Ok();
+            Grid grid = new Grid(gridValueRequest.Grid.Size);
+            // Create new Shape with coordinates based on the parameters from the DTO.
+            Vertex[] vertexArray = gridValueRequest.Vertices.ToArray();
+            List<Coordinate> coordinates = new List<Coordinate>();
+            for (int i = 0; i < vertexArray.Length; i++)
+            {
+                coordinates.Add(new(vertexArray[i].x, vertexArray[i].y));
+            }
+            Shape? shape = new(coordinates);
+            // Call the function in the shape factory to calculate grid value.
+            GridValue? gridValue = _shapeFactory.CalculateGridValue(shapeEnum, grid, shape);
+            if (gridValue == null)
+            {
+                // If the GridValue result is null then return BadRequest with an error message.
+                return BadRequest();
+            }
+            else
+            {
+                // Generate a ResponseModel based on the result and return it in Ok();
+                return Ok(gridValue);
+            }
         }
     }
 }
