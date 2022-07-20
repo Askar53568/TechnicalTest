@@ -15,25 +15,22 @@ namespace TechnicalTest.Core.Services
         {
             // number of cells in the grid is 6, number of grid values is 12
             // thus we devide the grid value by 2 and round up to take into account odd numbers
-            int column = (int)Math.Ceiling((double)gridValue.Column / 2.0) * grid.Size;
-            int row = (gridValue.GetNumericRow() - 1) * grid.Size;
-            Coordinate OuterVertex = new Coordinate(0, 0);
-            Coordinate TopLeftVertex = new Coordinate(0, 0);
-            Coordinate BottomRightVertex = new Coordinate(0, 0);
+            int highestX = (int)Math.Ceiling(gridValue.Column / 2.0) * grid.Size;
+            int lowestY = (gridValue.GetNumericRow() - 1) * grid.Size;
+            Coordinate OuterVertex;
+            Coordinate TopLeftVertex = new Coordinate(highestX - grid.Size, lowestY);
+            Coordinate BottomRightVertex = new Coordinate(highestX, lowestY + grid.Size);
             // Check if a triangle is on the bottom or the top
             if (gridValue.Column % 2 == 0)
             {
                 // If the column value is even then triangle is at the top
-                OuterVertex = new Coordinate(Convert.ToInt32(column), row);
-                TopLeftVertex = new Coordinate(Convert.ToInt32(column) - 10, row);
-                BottomRightVertex = new Coordinate(Convert.ToInt32(column), row + 10);
+                OuterVertex = new Coordinate(highestX, lowestY);
+         
             }
             else
             {
                 // If the column value is odd then triangle is on the bottom
-                OuterVertex = new Coordinate(Convert.ToInt32(column) - 10, row + 10);
-                TopLeftVertex = new Coordinate(Convert.ToInt32(column) - 10, row);
-                BottomRightVertex = new Coordinate(Convert.ToInt32(column), row + 10);
+                OuterVertex = new Coordinate(highestX - grid.Size, lowestY + grid.Size);
             }
 
             return new Shape(new List<Coordinate>
@@ -51,8 +48,8 @@ namespace TechnicalTest.Core.Services
         /// <returns> grid value of the triangle </returns>
         public GridValue ProcessGridValueFromTriangularShape(Grid grid, Triangle triangle)
         {
-            int column = triangle.OuterVertex.X / 10 * 2;
-            int row = triangle.BottomRightVertex.Y / 10;
+            int column = triangle.OuterVertex.X / grid.Size * 2;
+            int row = triangle.BottomRightVertex.Y / grid.Size;
             // if the x coordinates of the outer and top left vertices are equal, then the triangle is at the bottom
             // the character value of 0 is '@', so we need to increase the column value by 1 to get 'A'
             if ((triangle.TopLeftVertex.X - triangle.OuterVertex.X == 0) || (triangle.OuterVertex.X == 0))
